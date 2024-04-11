@@ -1,5 +1,6 @@
 import {FiSearch} from 'react-icons/fi'
 import { useState } from 'react';
+import toast, {Toaster} from 'react-hot-toast'
 import './styles.css'
 import api from './services/api';
 
@@ -15,19 +16,24 @@ function App() {
     }
 
     try{
-      const response = await api.get(`${input}/json`)  // guardo no response o valor que recebo da api.
-      setCep(response.data)    // Guardo no cep apenas o objeto recebido pelo response
-      setInput('') // Limpo o input
-      console.log(cep)
-      if(cep.logradouro){
-        console.log('Existe')
-        console.log(cep.logradouro)
+      const response = await api.get(`${input}/json`)      // guardo no response o valor que recebo da api.
+                                                          // Guardo no cep apenas o objeto recebido pelo response
+      if(!response.data.erro) {
+        setCep(response.data)
       }else{
-        console.log('Não Existe')
-        console.log(cep.logradouro)
-      }
+        setCep('');
+        toast.error('Endereço não encontrado.', {
+          duration: 3000,
+          position: 'top-center'
+        });
+        console.log('error')
+      }  
+      setInput('') // Limpo o input
     }catch{
-      alert("Erro ao buscar o CEP, tente novamente!")
+      toast.error('Erro ao buscar o CEP, tente novamente.', {
+        duration: 3000,
+        position: 'top-center'
+      });
       setInput('')  // Limpo o input
     }
 
@@ -46,11 +52,12 @@ function App() {
           onChange={(e) => setInput(e.target.value)} // Seto o valor digitado dentro do input.
         />
 
-
         <button className="buttonSearch" onClick={heandleSearch}>
           <FiSearch size={25} color='#FFF'/>
         </button>
       </div>
+
+      <Toaster/>
 
       {Object.keys(cep).length > 0 && (      // Sintaxe utilizada para mostrar a div main, apenas se existir valor dentro do input
         <section className='main'>
